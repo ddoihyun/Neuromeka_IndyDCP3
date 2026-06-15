@@ -1,0 +1,35 @@
+from neuromeka import IndyDCP3
+from neuromeka.proto import config_msgs_pb2 as config_msgs
+from neuromeka.proto import common_msgs_pb2 as common_msgs
+from google.protobuf.json_format import MessageToDict, ParseDict
+
+indy = IndyDCP3(robot_ip='192.168.0.91', index=0)
+
+def get_operation_mode_config():
+    response = indy.config.GetOperationModeConfig(common_msgs.Empty())
+    return MessageToDict(response,
+                         including_default_value_fields=True,
+                         preserving_proto_field_name=True,
+                         use_integers_for_enums=True)
+
+def set_operation_mode_config(config: dict):
+    req = config_msgs.OperationModeConfig()
+    ParseDict(config, req)
+    response = indy.config.SetOperationModeConfig(req)
+    return MessageToDict(response,
+                         including_default_value_fields=True,
+                         preserving_proto_field_name=True,
+                         use_integers_for_enums=True)
+
+# 사용
+# 1. 현재 config 가져오기
+config = get_operation_mode_config()
+print(config)
+
+# 2. 원하는 값 변경
+config['use_ext_auto_mode'] = False  # 또는 True
+
+# 3. 다시 적용
+result = set_operation_mode_config(config)
+
+print(result)
